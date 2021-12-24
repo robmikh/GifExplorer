@@ -29,8 +29,9 @@ namespace GifExplorer
     {
         public InteropBrush ImageBrush { get; }
         public string DisplayName { get; }
+        public BitmapPropertySet Properties { get; }
 
-        public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName)
+        public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName, BitmapPropertySet properties)
         {
             var size = bitmap.SizeInPixels;
             var surface = compGraphics.CreateDrawingSurface2(new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height }, DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
@@ -44,6 +45,7 @@ namespace GifExplorer
             compBrush.BitmapInterpolationMode = CompositionBitmapInterpolationMode.NearestNeighbor;
             ImageBrush = new InteropBrush(compBrush);
             DisplayName = displayName;
+            Properties = properties;
         }
     }
 
@@ -74,11 +76,11 @@ namespace GifExplorer
             {
                 case "Frames":
                     FramesListView.Visibility = Visibility.Visible;
-                    FrameInfoStackPanel.Visibility = Visibility.Collapsed;
+                    FrameInfoGrid.Visibility = Visibility.Collapsed;
                     break;
                 case "FrameInfo":
                     FramesListView.Visibility = Visibility.Collapsed;
-                    FrameInfoStackPanel.Visibility = Visibility.Visible;
+                    FrameInfoGrid.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -108,7 +110,25 @@ namespace GifExplorer
                     var frame = await decoder.GetFrameAsync(i);
                     var bitmap = await DecodeBitmapFrameAsync(frame);
 
-                    var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}");
+                    var properties = await frame.BitmapProperties.GetPropertiesAsync(new string[] 
+                    {
+                        "/grctlext/Delay",
+                        "/imgdesc/Left",
+                        "/imgdesc/Top",
+                        "/imgdesc/Width",
+                        "/imgdesc/Height"
+                    });
+                    //var delay = (ushort)properties["/grctlext/Delay"].Value;
+                    //var rect = new RectInt32()
+                    //{
+                    //    X = (ushort)properties["/imgdesc/Left"].Value,
+                    //    Y = (ushort)properties["/imgdesc/Top"].Value,
+                    //    Width = (ushort)properties["/imgdesc/Width"].Value,
+                    //    Height = (ushort)properties["/imgdesc/Height"].Value,
+                    //};
+
+
+                    var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}", properties);
                     frames.Add(gifFrame);
                 }
             }

@@ -3,6 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:GifExplorer"
+    xmlns:wfc="using:Windows.Foundation.Collections"
+    xmlns:wgi="using:Windows.Graphics.Imaging"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -39,9 +41,28 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <StackPanel x:Name="FrameInfoStackPanel" Visibility="Collapsed">
-                        
-                    </StackPanel>
+                    <Grid x:Name="FrameInfoGrid" Visibility="Collapsed" DataContext="{Binding ElementName=FramesListView, Path=SelectedItem}">
+                        <ListView ItemsSource="{Binding Properties}" IsItemClickEnabled="False">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Key}" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Value, Converter={StaticResource BitmapTypedValueConverter}}" HorizontalAlignment="Right" TextAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
                 </Grid>
             </NavigationView>
         </Grid>

@@ -4,4 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:GifExplorer">
 
+    <Application.Resources>
+        <local:BitmapTypedValueConverter x:Key="BitmapTypedValueConverter" />
+    </Application.Resources>
+
 </Application>
