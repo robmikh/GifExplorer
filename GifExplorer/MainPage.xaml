@@ -17,11 +17,13 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <Border BorderThickness="1" BorderBrush="Red" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Canvas x:Name="MainFrameCanvas" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Rectangle x:Name="MainFrameView" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Canvas>
-            </Border>
+            <ScrollViewer x:Name="MainFrameScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" ZoomMode="Enabled" HorizontalScrollMode="Enabled" VerticalScrollMode="Enabled">
+                <Border BorderThickness="1" BorderBrush="Red" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Canvas x:Name="MainFrameCanvas" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Rectangle x:Name="MainFrameView" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Canvas>
+                </Border>
+            </ScrollViewer>
         </Grid>
 
         <Grid Grid.Column="1">
