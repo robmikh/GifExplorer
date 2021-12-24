@@ -1,0 +1,55 @@
+﻿<Page
+    x:Class="GifExplorer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:GifExplorer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Rectangle x:Name="MainFrameView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <NavigationView x:Name="MainNavigationView" PaneDisplayMode="Top" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsBackButtonVisible="Collapsed" IsSettingsVisible="False" SelectionChanged="MainNavigationView_SelectionChanged">
+                <NavigationView.MenuItems>
+                    <NavigationViewItem x:Name="FramesTab" Content="Frames" Tag="Frames" />
+                    <NavigationViewItem  Content="Frame Details" Tag="FrameInfo" />
+                </NavigationView.MenuItems>
+                <Grid>
+                    <ListView x:Name="FramesListView" Visibility="Collapsed" SelectionChanged="FramesListView_SelectionChanged">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="local:GifFrame" >
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <Rectangle Grid.Column="0" MinWidth="75" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Fill="{x:Bind ImageBrush}" />
+                                    <TextBlock Grid.Column="1" Text="{x:Bind DisplayName}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <StackPanel x:Name="FrameInfoStackPanel" Visibility="Collapsed">
+                        
+                    </StackPanel>
+                </Grid>
+            </NavigationView>
+        </Grid>
+    </Grid>
+
+    <Page.BottomAppBar>
+        <CommandBar>
+            <AppBarButton Icon="OpenFile" Label="Open" Click="OpenFileButton_Click" />
+        </CommandBar>
+    </Page.BottomAppBar>
+</Page>
