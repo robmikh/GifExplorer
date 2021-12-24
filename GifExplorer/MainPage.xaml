@@ -17,7 +17,11 @@
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
-            <Rectangle x:Name="MainFrameView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <Border BorderThickness="1" BorderBrush="Red" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Canvas x:Name="MainFrameCanvas" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Rectangle x:Name="MainFrameView" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Canvas>
+            </Border>
         </Grid>
 
         <Grid Grid.Column="1">

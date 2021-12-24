@@ -30,6 +30,7 @@ namespace GifExplorer
         public InteropBrush ImageBrush { get; }
         public string DisplayName { get; }
         public BitmapPropertySet Properties { get; }
+        public RectInt32 Rect { get; }
 
         public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName, BitmapPropertySet properties)
         {
@@ -46,6 +47,13 @@ namespace GifExplorer
             ImageBrush = new InteropBrush(compBrush);
             DisplayName = displayName;
             Properties = properties;
+            Rect = new RectInt32()
+            {
+                X = (ushort)properties["/imgdesc/Left"].Value,
+                Y = (ushort)properties["/imgdesc/Top"].Value,
+                Width = (ushort)properties["/imgdesc/Width"].Value,
+                Height = (ushort)properties["/imgdesc/Height"].Value,
+            };
         }
     }
 
@@ -104,6 +112,11 @@ namespace GifExplorer
             using (var stream = await file.OpenReadAsync())
             {
                 var decoder = await BitmapDecoder.CreateAsync(BitmapDecoder.GifDecoderId, stream);
+                var width = decoder.PixelWidth;
+                var height = decoder.PixelHeight;
+                MainFrameCanvas.Width = width;
+                MainFrameCanvas.Height = height;
+
                 var numFrames = decoder.FrameCount;
                 for (uint i = 0; i < numFrames; i++)
                 {
@@ -118,15 +131,6 @@ namespace GifExplorer
                         "/imgdesc/Width",
                         "/imgdesc/Height"
                     });
-                    //var delay = (ushort)properties["/grctlext/Delay"].Value;
-                    //var rect = new RectInt32()
-                    //{
-                    //    X = (ushort)properties["/imgdesc/Left"].Value,
-                    //    Y = (ushort)properties["/imgdesc/Top"].Value,
-                    //    Width = (ushort)properties["/imgdesc/Width"].Value,
-                    //    Height = (ushort)properties["/imgdesc/Height"].Value,
-                    //};
-
 
                     var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}", properties);
                     frames.Add(gifFrame);
@@ -134,6 +138,7 @@ namespace GifExplorer
             }
 
             FramesListView.ItemsSource = frames;
+            FramesListView.SelectedIndex = 0;
         }
 
         private async Task<CanvasBitmap> DecodeBitmapFrameAsync(BitmapFrame frame)
@@ -168,7 +173,11 @@ namespace GifExplorer
         private void FramesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var frame = (GifFrame)((ListView)sender).SelectedItem;
+            MainFrameView.Width = frame.Rect.Width;
+            MainFrameView.Height = frame.Rect.Height;
             MainFrameView.Fill = frame.ImageBrush;
+            Canvas.SetLeft(MainFrameView, frame.Rect.X);
+            Canvas.SetTop(MainFrameView, frame.Rect.Y);
         }
     }
 }
