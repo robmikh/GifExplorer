@@ -192,12 +192,23 @@ namespace GifExplorer
 
         private void FramesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var frame = (GifFrame)((ListView)sender).SelectedItem;
-            MainFrameView.Width = frame.Rect.Width;
-            MainFrameView.Height = frame.Rect.Height;
-            MainFrameView.Fill = frame.ImageBrush;
-            Canvas.SetLeft(MainFrameView, frame.Rect.X);
-            Canvas.SetTop(MainFrameView, frame.Rect.Y);
+            var frame = ((ListView)sender).SelectedItem as GifFrame;
+            if (frame != null)
+            {
+                MainFrameView.Width = frame.Rect.Width;
+                MainFrameView.Height = frame.Rect.Height;
+                MainFrameView.Fill = frame.ImageBrush;
+                Canvas.SetLeft(MainFrameView, frame.Rect.X);
+                Canvas.SetTop(MainFrameView, frame.Rect.Y);
+            }
+            else
+            {
+                MainFrameView.Width = 0;
+                MainFrameView.Height = 0;
+                MainFrameView.Fill = null;
+                Canvas.SetLeft(MainFrameView, 0);
+                Canvas.SetTop(MainFrameView, 0);
+            }
         }
     }
 }
