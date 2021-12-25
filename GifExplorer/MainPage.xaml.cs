@@ -106,7 +106,7 @@ namespace GifExplorer
             }
         }
 
-        private async Task OpenFileAsync(StorageFile file)
+        public async Task OpenFileAsync(StorageFile file)
         {
             var frames = new List<GifFrame>();
             using (var stream = await file.OpenReadAsync())

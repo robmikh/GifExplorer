@@ -7,6 +7,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -39,25 +40,7 @@ namespace GifExplorer
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-            Frame rootFrame = Window.Current.Content as Frame;
-
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
-            if (rootFrame == null)
-            {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
-
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                    //TODO: Load state from previously suspended application
-                }
-
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
-            }
+            var rootFrame = CreateRootFrame();
 
             if (e.PrelaunchActivated == false)
             {
@@ -95,6 +78,39 @@ namespace GifExplorer
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        private Frame CreateRootFrame()
+        {
+            var frame = Window.Current.Content as Frame;
+            if (frame == null)
+            {
+                frame = new Frame();
+                frame.NavigationFailed += OnNavigationFailed;
+                Window.Current.Content = frame;
+            }
+            return frame;
+        }
+
+        protected override async void OnFileActivated(FileActivatedEventArgs args)
+        {
+            if (args.Kind == ActivationKind.File)
+            {
+                var frame = CreateRootFrame();
+                if (frame.Content == null)
+                {
+                    frame.Navigate(typeof(MainPage));
+                }
+
+                var page = frame.Content as MainPage;
+                var files = args.Files;
+                var item = files.First();
+                Window.Current.Activate();
+                if (item is StorageFile file)
+                {
+                    await page.OpenFileAsync(file);
+                }
+            }
         }
     }
 }
