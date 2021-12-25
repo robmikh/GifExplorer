@@ -85,10 +85,17 @@ namespace GifExplorer
                 case "Frames":
                     FramesListView.Visibility = Visibility.Visible;
                     FrameInfoGrid.Visibility = Visibility.Collapsed;
+                    ContainerInfoGrid.Visibility = Visibility.Collapsed;
                     break;
                 case "FrameInfo":
                     FramesListView.Visibility = Visibility.Collapsed;
                     FrameInfoGrid.Visibility = Visibility.Visible;
+                    ContainerInfoGrid.Visibility = Visibility.Collapsed;
+                    break;
+                case "ContainerInfo":
+                    FramesListView.Visibility = Visibility.Collapsed;
+                    FrameInfoGrid.Visibility = Visibility.Collapsed;
+                    ContainerInfoGrid.Visibility = Visibility.Visible;
                     break;
             }
         }
@@ -108,6 +115,7 @@ namespace GifExplorer
 
         public async Task OpenFileAsync(StorageFile file)
         {
+            BitmapPropertySet containerProperties = null;
             var frames = new List<GifFrame>();
             using (var stream = await file.OpenReadAsync())
             {
@@ -117,6 +125,17 @@ namespace GifExplorer
                 MainFrameCanvas.Width = width;
                 MainFrameCanvas.Height = height;
 
+                // Information on gif metadata can be found here:
+                // https://docs.microsoft.com/en-us/windows/win32/wic/-wic-native-image-format-metadata-queries#gif-metadata
+
+                // Extract container info
+                containerProperties = await decoder.BitmapContainerProperties.GetPropertiesAsync(new string[]
+                {
+                    "/logscrdesc/Width",
+                    "/logscrdesc/Height",
+                });
+
+                // Extract frames
                 var numFrames = decoder.FrameCount;
                 for (uint i = 0; i < numFrames; i++)
                 {
@@ -139,6 +158,7 @@ namespace GifExplorer
 
             FramesListView.ItemsSource = frames;
             FramesListView.SelectedIndex = 0;
+            ContainerInfoLisView.ItemsSource = containerProperties;
         }
 
         private async Task<CanvasBitmap> DecodeBitmapFrameAsync(BitmapFrame frame)

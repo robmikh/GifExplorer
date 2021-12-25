@@ -31,6 +31,7 @@
                 <NavigationView.MenuItems>
                     <NavigationViewItem x:Name="FramesTab" Content="Frames" Tag="Frames" />
                     <NavigationViewItem  Content="Frame Details" Tag="FrameInfo" />
+                    <NavigationViewItem  Content="Container Details" Tag="ContainerInfo" />
                 </NavigationView.MenuItems>
                 <Grid>
                     <ListView x:Name="FramesListView" Visibility="Collapsed" SelectionChanged="FramesListView_SelectionChanged">
@@ -49,6 +50,28 @@
                     </ListView>
                     <Grid x:Name="FrameInfoGrid" Visibility="Collapsed" DataContext="{Binding ElementName=FramesListView, Path=SelectedItem}">
                         <ListView ItemsSource="{Binding Properties}" IsItemClickEnabled="False">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
+
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Key}" FontWeight="Bold" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Value, Converter={StaticResource BitmapTypedValueConverter}}" HorizontalAlignment="Right" TextAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Grid>
+                    <Grid x:Name="ContainerInfoGrid" Visibility="Collapsed">
+                        <ListView x:Name="ContainerInfoLisView" IsItemClickEnabled="False">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
