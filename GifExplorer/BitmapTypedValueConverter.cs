@@ -6,40 +6,48 @@ using Windows.UI.Xaml.Data;
 
 namespace GifExplorer
 {
-    class BitmapTypedValueConverter : IValueConverter
+    static class BitmapTypedValueStringFormatter
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        public static string FormatValue(this BitmapTypedValue value)
         {
-            var typedValue = (BitmapTypedValue)value;
-            switch (typedValue.Type)
+            switch (value.Type)
             {
                 case PropertyType.UInt16:
-                    return $"{(ushort)typedValue.Value}";
+                    return $"{(ushort)value.Value}";
                 case PropertyType.Boolean:
-                    return (bool)typedValue.Value ? "True" : "False";
+                    return (bool)value.Value ? "True" : "False";
                 case PropertyType.UInt8:
-                    return $"{(byte)typedValue.Value}";
+                    return $"{(byte)value.Value}";
                 case PropertyType.String:
-                    return (string)typedValue.Value;
+                    return (string)value.Value;
                 case PropertyType.UInt8Array:
-                    return $"{PrintArray((byte[])typedValue.Value)}";
+                    return $"{PrintArray((byte[])value.Value)}";
                 default:
-                    return $"Unknown type ({typedValue.Type})";
+                    return $"Unknown type ({value.Type})";
             }
         }
-
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
-
-        static string PrintArray<T>(T[] array)
+        private static string PrintArray<T>(T[] array)
         {
             var builder = new StringBuilder();
             builder.Append("[ ");
             builder.AppendJoin(", ", array);
             builder.Append(" ]");
             return builder.ToString();
+        }
+    }
+
+
+    class BitmapTypedValueConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            var typedValue = (BitmapTypedValue)value;
+            return typedValue.FormatValue();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
         }
 
     }

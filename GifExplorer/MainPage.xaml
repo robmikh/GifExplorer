@@ -34,7 +34,7 @@
                     <NavigationViewItem  Content="Container Details" Tag="ContainerInfo" />
                 </NavigationView.MenuItems>
                 <Grid>
-                    <ListView x:Name="FramesListView" Visibility="Collapsed" SelectionChanged="FramesListView_SelectionChanged">
+                    <ListView x:Name="FramesListView" Visibility="Collapsed" SelectionChanged="FramesListView_SelectionChanged" RightTapped="FramesListView_RightTapped">
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="local:GifFrame" >
                                 <Grid>
@@ -47,9 +47,15 @@
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
+                        <ListView.Resources>
+                            <MenuFlyout x:Name="FrameMenuFlyout">
+                                <MenuFlyoutItem Text="Copy" Click="CopyFrameMenuItem_Click" />
+                                <MenuFlyoutItem Text="Save As" Click="SaveFrameMenuItem_Click" />
+                            </MenuFlyout>
+                        </ListView.Resources>
                     </ListView>
-                    <Grid x:Name="FrameInfoGrid" Visibility="Collapsed" DataContext="{Binding ElementName=FramesListView, Path=SelectedItem}">
-                        <ListView ItemsSource="{Binding Properties}" IsItemClickEnabled="False">
+                    <Grid x:Name="FrameInfoGrid" Visibility="Collapsed" DataContext="{Binding ElementName=FramesListView, Path=SelectedItem}" >
+                        <ListView ItemsSource="{Binding Properties}" IsItemClickEnabled="False" RightTapped="FrameInfoListView_RightTapped">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -68,10 +74,16 @@
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
+                            
+                            <ListView.Resources>
+                                <MenuFlyout x:Name="FrameInfoMenuFlyout">
+                                    <MenuFlyoutItem Text="Copy" Click="CopyInfoMenuItem_Click" />
+                                </MenuFlyout>
+                            </ListView.Resources>
                         </ListView>
                     </Grid>
                     <Grid x:Name="ContainerInfoGrid" Visibility="Collapsed">
-                        <ListView x:Name="ContainerInfoLisView" IsItemClickEnabled="False">
+                        <ListView x:Name="ContainerInfoLisView" IsItemClickEnabled="False" RightTapped="ContainerInfoLisView_RightTapped">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -90,6 +102,12 @@
                                     </Grid>
                                 </DataTemplate>
                             </ListView.ItemTemplate>
+
+                            <ListView.Resources>
+                                <MenuFlyout x:Name="ContainerInfoMenuFlyout">
+                                    <MenuFlyoutItem Text="Copy" Click="CopyInfoMenuItem_Click" />
+                                </MenuFlyout>
+                            </ListView.Resources>
                         </ListView>
                     </Grid>
                 </Grid>

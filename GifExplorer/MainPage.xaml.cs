@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics;
@@ -13,6 +14,7 @@ using Windows.Graphics.DirectX;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Composition;
 using Windows.UI.Xaml;
@@ -31,6 +33,7 @@ namespace GifExplorer
         public string DisplayName { get; }
         public BitmapPropertySet Properties { get; }
         public RectInt32 Rect { get; }
+        public CanvasBitmap Bitmap { get; }
 
         public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName, BitmapPropertySet properties)
         {
@@ -54,6 +57,7 @@ namespace GifExplorer
                 Width = (ushort)properties["/imgdesc/Width"].Value,
                 Height = (ushort)properties["/imgdesc/Height"].Value,
             };
+            Bitmap = bitmap;
         }
     }
 
@@ -63,6 +67,9 @@ namespace GifExplorer
 
         private Compositor _compositor;
         private CompositionGraphicsDevice _compGraphics;
+
+        private GifFrame _rightClickedFrame;
+        private string _rightClickedInfo;
 
         public MainPage()
         {
@@ -115,6 +122,9 @@ namespace GifExplorer
 
         public async Task OpenFileAsync(StorageFile file)
         {
+            _rightClickedFrame = null;
+            _rightClickedInfo = null;
+
             BitmapPropertySet containerProperties = null;
             var frames = new List<GifFrame>();
             using (var stream = await file.OpenReadAsync())
@@ -218,6 +228,68 @@ namespace GifExplorer
                 Canvas.SetLeft(MainFrameView, 0);
                 Canvas.SetTop(MainFrameView, 0);
             }
+        }
+
+        private void FramesListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            var listView = (ListView)sender;
+            FrameMenuFlyout.ShowAt(listView, e.GetPosition(listView));
+            _rightClickedFrame = ((FrameworkElement)e.OriginalSource).DataContext as GifFrame;
+        }
+
+        private async void CopyFrameMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var dataPackage = new DataPackage();
+            dataPackage.RequestedOperation = DataPackageOperation.Copy;
+
+            var stream = new InMemoryRandomAccessStream();
+            await _rightClickedFrame.Bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png, 1.0f);
+
+            dataPackage.SetBitmap(RandomAccessStreamReference.CreateFromStream(stream));
+            Clipboard.SetContent(dataPackage);
+        }
+
+        private async void SaveFrameMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var picker = new FileSavePicker();
+            picker.SuggestedStartLocation = PickerLocationId.PicturesLibrary;
+            picker.SuggestedFileName = $"frame{_rightClickedFrame.DisplayName}";
+            picker.DefaultFileExtension = ".png";
+            picker.FileTypeChoices.Add("PNG Image", new List<string> { ".png" });
+
+            var file = await picker.PickSaveFileAsync();
+            if (file != null)
+            {
+                using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    await _rightClickedFrame.Bitmap.SaveAsync(stream, CanvasBitmapFileFormat.Png, 1.0f);
+                }
+            }
+        }
+
+        private void FrameInfoListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            var listView = (ListView)sender;
+            FrameInfoMenuFlyout.ShowAt(listView, e.GetPosition(listView));
+            var pair = (KeyValuePair<string, BitmapTypedValue>)((FrameworkElement)e.OriginalSource).DataContext;
+            _rightClickedInfo = pair.Value.FormatValue();
+        }
+
+        private void ContainerInfoLisView_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            var listView = (ListView)sender;
+            ContainerInfoMenuFlyout.ShowAt(listView, e.GetPosition(listView));
+            var pair = (KeyValuePair<string, BitmapTypedValue>)((FrameworkElement)e.OriginalSource).DataContext;
+            _rightClickedInfo = pair.Value.FormatValue();
+        }
+
+        private void CopyInfoMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var dataPackage = new DataPackage();
+            dataPackage.RequestedOperation = DataPackageOperation.Copy;
+
+            dataPackage.SetText(_rightClickedInfo);
+            Clipboard.SetContent(dataPackage);
         }
     }
 }
