@@ -133,6 +133,16 @@ namespace GifExplorer
                 {
                     "/logscrdesc/Width",
                     "/logscrdesc/Height",
+                    "/commentext/TextEntry",
+                    "/logscrdesc/Signature",
+                    "/logscrdesc/GlobalColorTableFlag",
+                    "/logscrdesc/ColorResolution",
+                    "/logscrdesc/SortFlag",
+                    "/logscrdesc/GlobalColorTableSize",
+                    "/logscrdesc/BackgroundColorIndex",
+                    "/logscrdesc/PixelAspectRatio",
+                    "/appext/Application",
+                    "/appext/Data"
                 });
 
                 // Extract frames
@@ -148,7 +158,15 @@ namespace GifExplorer
                         "/imgdesc/Left",
                         "/imgdesc/Top",
                         "/imgdesc/Width",
-                        "/imgdesc/Height"
+                        "/imgdesc/Height",
+                        "/grctlext/Disposal",
+                        "/grctlext/UserInputFlag",
+                        "/grctlext/TransparencyFlag",
+                        "/grctlext/TransparentColorIndex",
+                        "/imgdesc/LocalColorTableFlag",
+                        "/imgdesc/InterlaceFlag",
+                        "/imgdesc/SortFlag",
+                        "/imgdesc/LocalColorTableSize"
                     });
 
                     var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}", properties);
@@ -163,31 +181,22 @@ namespace GifExplorer
 
         private async Task<CanvasBitmap> DecodeBitmapFrameAsync(BitmapFrame frame)
         {
-            var width = frame.PixelWidth;
-            var height = frame.PixelHeight;
-            var pixels = await frame.GetPixelDataAsync();
-            var bytes = pixels.DetachPixelData();
+            var softwareBitmap = await frame.GetSoftwareBitmapAsync();
 
-            var format = frame.BitmapPixelFormat;
-            switch (format)
+            SoftwareBitmap convertedBitmap;
+
+            var pixelFormat = softwareBitmap.BitmapPixelFormat;
+            var alphaMode = softwareBitmap.BitmapAlphaMode;
+            if (pixelFormat == BitmapPixelFormat.Bgra8 && alphaMode == BitmapAlphaMode.Premultiplied)
             {
-                case BitmapPixelFormat.Bgra8:
-                    // Do nothing, it's in a format we like
-                    break;
-                case BitmapPixelFormat.Rgba8:
-                    // Swizzle the bits
-                    for (var i = 0; i < bytes.Length; i += 4)
-                    {
-                        var r = bytes[i + 0];
-                        bytes[i + 0] = bytes[i + 2];
-                        bytes[i + 2] = r;
-                    }
-                    break;
-                default:
-                    throw new Exception($"Unknown pixel format ({format})!");
+                convertedBitmap = softwareBitmap;
             }
-            
-            return CanvasBitmap.CreateFromBytes(_device, bytes, (int)width, (int)height, DirectXPixelFormat.B8G8R8A8UIntNormalized);
+            else
+            {
+                convertedBitmap = SoftwareBitmap.Convert(softwareBitmap, BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
+            }
+
+            return CanvasBitmap.CreateFromSoftwareBitmap(_device, convertedBitmap);
         }
 
         private void FramesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
