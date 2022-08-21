@@ -5,6 +5,7 @@
     xmlns:local="using:GifExplorer"
     xmlns:wfc="using:Windows.Foundation.Collections"
     xmlns:wgi="using:Windows.Graphics.Imaging"
+    xmlns:wi="using:Windows.UI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -31,6 +32,7 @@
                 <NavigationView.MenuItems>
                     <NavigationViewItem x:Name="FramesTab" Content="Frames" Tag="Frames" />
                     <NavigationViewItem  Content="Frame Details" Tag="FrameInfo" />
+                    <NavigationViewItem  Content="Frame Palette" Tag="FramePalette" />
                     <NavigationViewItem  Content="Container Details" Tag="ContainerInfo" />
                 </NavigationView.MenuItems>
                 <Grid>
@@ -109,6 +111,51 @@
                                 </MenuFlyout>
                             </ListView.Resources>
                         </ListView>
+                    </Grid>
+                    <Grid x:Name="PaletteGrid" Visibility="Collapsed" DataContext="{Binding ElementName=FramesListView, Path=SelectedItem.Palette}" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="Has Alpha" FontWeight="Bold" />
+                            <TextBlock Grid.Column="1" Text="{Binding HasAlpha}" HorizontalAlignment="Right" TextAlignment="Right" />
+                        </Grid>
+
+                        <GridView x:Name="FramePaletteGridView" Grid.Row="1" Margin="5" ItemsSource="{Binding Colors}" IsItemClickEnabled="False">
+                            <GridView.ItemTemplate>
+                                <DataTemplate x:DataType="wi:Color">
+                                    <Rectangle Width="50" Height="50">
+                                        <Rectangle.Fill>
+                                            <SolidColorBrush Color="{x:Bind}" />
+                                        </Rectangle.Fill>
+                                    </Rectangle>
+                                </DataTemplate>
+                            </GridView.ItemTemplate>
+                        </GridView>
+
+                        <Grid Grid.Row="2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="75" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <Rectangle Grid.Column="0" Width="50" Height="50">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{Binding SelectedItem, ElementName=FramePaletteGridView}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding SelectedItem, ElementName=FramePaletteGridView, Converter={StaticResource ColorToTextConverter}}" />
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </Grid>
             </NavigationView>

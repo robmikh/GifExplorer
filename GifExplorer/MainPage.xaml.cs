@@ -35,8 +35,9 @@ namespace GifExplorer
         public BitmapPropertySet Properties { get; }
         public RectInt32 Rect { get; }
         public CanvasBitmap Bitmap { get; }
+        public GifPalette Palette { get; }
 
-        public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName, BitmapPropertySet properties)
+        public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName, BitmapPropertySet properties, GifPalette palette)
         {
             var size = bitmap.SizeInPixels;
             var surface = compGraphics.CreateDrawingSurface2(new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height }, DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
@@ -59,6 +60,7 @@ namespace GifExplorer
                 Height = (ushort)properties["/imgdesc/Height"].Value,
             };
             Bitmap = bitmap;
+            Palette = palette;
         }
     }
 
@@ -93,16 +95,25 @@ namespace GifExplorer
                 case "Frames":
                     FramesListView.Visibility = Visibility.Visible;
                     FrameInfoGrid.Visibility = Visibility.Collapsed;
+                    PaletteGrid.Visibility = Visibility.Collapsed;
                     ContainerInfoGrid.Visibility = Visibility.Collapsed;
                     break;
                 case "FrameInfo":
                     FramesListView.Visibility = Visibility.Collapsed;
                     FrameInfoGrid.Visibility = Visibility.Visible;
+                    PaletteGrid.Visibility = Visibility.Collapsed;
+                    ContainerInfoGrid.Visibility = Visibility.Collapsed;
+                    break;
+                case "FramePalette":
+                    FramesListView.Visibility = Visibility.Collapsed;
+                    FrameInfoGrid.Visibility = Visibility.Collapsed;
+                    PaletteGrid.Visibility = Visibility.Visible;
                     ContainerInfoGrid.Visibility = Visibility.Collapsed;
                     break;
                 case "ContainerInfo":
                     FramesListView.Visibility = Visibility.Collapsed;
                     FrameInfoGrid.Visibility = Visibility.Collapsed;
+                    PaletteGrid.Visibility = Visibility.Collapsed;
                     ContainerInfoGrid.Visibility = Visibility.Visible;
                     break;
             }
@@ -180,7 +191,7 @@ namespace GifExplorer
                         "/imgdesc/LocalColorTableSize"
                     });
 
-                    var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}", properties);
+                    var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}", properties, frame.Palette);
                     frames.Add(gifFrame);
                 }
             }

@@ -127,6 +127,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="BitmapTypedValueConverter.cs" />
+    <Compile Include="ColorToTextConverter.cs" />
     <Compile Include="InteropBrush.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>

@@ -6,6 +6,7 @@
 
     <Application.Resources>
         <local:BitmapTypedValueConverter x:Key="BitmapTypedValueConverter" />
+        <local:ColorToTextConverter x:Key="ColorToTextConverter" />
     </Application.Resources>
 
 </Application>
