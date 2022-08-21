@@ -229,16 +229,16 @@ namespace GifExplorer
                 MainFrameView.Width = frame.Rect.Width;
                 MainFrameView.Height = frame.Rect.Height;
                 MainFrameView.Fill = frame.ImageBrush;
-                Canvas.SetLeft(MainFrameView, frame.Rect.X);
-                Canvas.SetTop(MainFrameView, frame.Rect.Y);
+                Canvas.SetLeft(MainFrameBorder, frame.Rect.X - MainFrameBorder.BorderThickness.Left);
+                Canvas.SetTop(MainFrameBorder, frame.Rect.Y - MainFrameBorder.BorderThickness.Top);
             }
             else
             {
                 MainFrameView.Width = 0;
                 MainFrameView.Height = 0;
                 MainFrameView.Fill = null;
-                Canvas.SetLeft(MainFrameView, 0);
-                Canvas.SetTop(MainFrameView, 0);
+                Canvas.SetLeft(MainFrameBorder, 0);
+                Canvas.SetTop(MainFrameBorder, 0);
             }
         }
 

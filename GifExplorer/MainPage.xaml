@@ -19,9 +19,11 @@
 
         <Grid Grid.Column="0">
             <ScrollViewer x:Name="MainFrameScrollViewer" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" ZoomMode="Enabled" HorizontalScrollMode="Enabled" VerticalScrollMode="Enabled">
-                <Border BorderThickness="1" BorderBrush="Red" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Margin="25" BorderThickness="1" BorderBrush="Red" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <Canvas x:Name="MainFrameCanvas" HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <Rectangle x:Name="MainFrameView" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <Border x:Name="MainFrameBorder" BorderThickness="1" BorderBrush="Green" >
+                            <Rectangle x:Name="MainFrameView"/>
+                        </Border>
                     </Canvas>
                 </Border>
             </ScrollViewer>
