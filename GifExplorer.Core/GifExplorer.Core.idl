@@ -1,0 +1,37 @@
+namespace GifExplorer.Core
+{
+    [default_interface]
+    runtimeclass GifDecoder : Windows.Foundation.IClosable
+    {
+        GifDecoder(Windows.Storage.Streams.IRandomAccessStream stream);
+
+        UInt32 PixelWidth{ get; };
+        UInt32 PixelHeight{ get; };
+        UInt32 FrameCount{ get; };
+        GifPropertiesView BitmapContainerProperties{ get; };
+
+        GifFrame GetFrame(UInt32 index);
+    }
+
+    [default_interface]
+    runtimeclass GifFrame
+    {
+        GifPropertiesView BitmapProperties { get; };
+        GifPalette Palette { get; };
+
+        Windows.Graphics.Imaging.SoftwareBitmap GetSoftwareBitmap();
+    }
+
+    [default_interface]
+    runtimeclass GifPropertiesView
+    {
+        Windows.Graphics.Imaging.BitmapPropertySet GetProperties(Windows.Foundation.Collections.IIterable<String> propertiesToRetrieve);
+    }
+
+    [default_interface]
+    runtimeclass GifPalette
+    {
+        Windows.Foundation.Collections.IVectorView<Windows.UI.Color> Colors { get; };
+        Boolean HasAlpha{ get; };
+    }
+}

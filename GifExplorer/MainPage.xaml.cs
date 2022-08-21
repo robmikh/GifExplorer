@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas;
+﻿using GifExplorer.Core;
+using Microsoft.Graphics.Canvas;
 using Microsoft.Graphics.Canvas.UI.Composition;
 using System;
 using System.Collections.Generic;
@@ -129,7 +130,7 @@ namespace GifExplorer
             var frames = new List<GifFrame>();
             using (var stream = await file.OpenReadAsync())
             {
-                var decoder = await BitmapDecoder.CreateAsync(BitmapDecoder.GifDecoderId, stream);
+                var decoder = new GifDecoder(stream);
                 var width = decoder.PixelWidth;
                 var height = decoder.PixelHeight;
                 MainFrameCanvas.Width = width;
@@ -139,7 +140,7 @@ namespace GifExplorer
                 // https://docs.microsoft.com/en-us/windows/win32/wic/-wic-native-image-format-metadata-queries#gif-metadata
 
                 // Extract container info
-                containerProperties = await decoder.BitmapContainerProperties.GetPropertiesAsync(new string[]
+                containerProperties = decoder.BitmapContainerProperties.GetProperties(new string[]
                 {
                     "/logscrdesc/Width",
                     "/logscrdesc/Height",
@@ -159,10 +160,10 @@ namespace GifExplorer
                 var numFrames = decoder.FrameCount;
                 for (uint i = 0; i < numFrames; i++)
                 {
-                    var frame = await decoder.GetFrameAsync(i);
-                    var bitmap = await DecodeBitmapFrameAsync(frame);
+                    var frame = decoder.GetFrame(i);
+                    var bitmap = DecodeBitmapFrame(frame);
 
-                    var properties = await frame.BitmapProperties.GetPropertiesAsync(new string[] 
+                    var properties = frame.BitmapProperties.GetProperties(new string[] 
                     {
                         "/grctlext/Delay",
                         "/imgdesc/Left",
@@ -189,9 +190,9 @@ namespace GifExplorer
             ContainerInfoLisView.ItemsSource = containerProperties;
         }
 
-        private async Task<CanvasBitmap> DecodeBitmapFrameAsync(BitmapFrame frame)
+        private CanvasBitmap DecodeBitmapFrame(Core.GifFrame frame)
         {
-            var softwareBitmap = await frame.GetSoftwareBitmapAsync();
+            var softwareBitmap = frame.GetSoftwareBitmap();
 
             SoftwareBitmap convertedBitmap;
 

@@ -213,6 +213,12 @@
   <ItemGroup>
     <None Include="GifExplorer_TemporaryKey.pfx" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GifExplorer.Core\GifExplorer.Core.vcxproj">
+      <Project>{32fe5307-5294-46db-b879-62769ec4c43e}</Project>
+      <Name>GifExplorer.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
