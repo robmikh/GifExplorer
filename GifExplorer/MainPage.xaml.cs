@@ -291,5 +291,63 @@ namespace GifExplorer
             dataPackage.SetText(_rightClickedInfo);
             Clipboard.SetContent(dataPackage);
         }
+
+        private async void Grid_DragOver(object sender, DragEventArgs e)
+        {
+            var deferral = e.GetDeferral();
+            bool valid = false;
+            string caption = "";
+            var view = e.DataView;
+
+            // First check for storage items
+            if (view.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await view.GetStorageItemsAsync();
+
+                if (items.Count > 0)
+                {
+                    // We'll only open the first one
+                    var item = items.First();
+                    if (item is StorageFile file)
+                    {
+                        var extension = file.FileType.ToLower();
+                        if (extension == ".gif")
+                        {
+                            valid = true;
+                            caption = "Open Gif";
+                        }
+                    }
+                }
+            }
+            else if (view.Contains(StandardDataFormats.Bitmap))
+            {
+                valid = true;
+            }
+
+            if (valid)
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = caption;
+            }
+            deferral.Complete();
+        }
+
+        private async void Grid_Drop(object sender, DragEventArgs e)
+        {
+            var view = e.DataView;
+            if (view.Contains(StandardDataFormats.StorageItems))
+            {
+                var items = await view.GetStorageItemsAsync();
+                if (items.Count > 0)
+                {
+                    // We'll only open the first one
+                    var item = items.First();
+                    if (item is StorageFile file)
+                    {
+                        await OpenFileAsync(file);
+                    }
+                }
+            }
+        }
     }
 }
