@@ -25,7 +25,7 @@ namespace winrt::GifExplorer::Core::implementation
         switch (propValue.vt)
         {
         case VT_BOOL:
-            object = winrt::box_value(propValue.boolVal < 0);
+            object = winrt::box_value(propValue.boolVal != 0);
             propertyType = winrt::PropertyType::Boolean;
             break;
         case VT_UI1:
