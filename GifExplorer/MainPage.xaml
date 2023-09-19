@@ -166,6 +166,7 @@
 
     <Page.BottomAppBar>
         <CommandBar>
+            <AppBarToggleButton Icon="View" Label="View Whole Frame" Checked="ViewWholeFrameButton_Checked" Unchecked="ViewWholeFrameButton_Unchecked"/>
             <AppBarButton Icon="OpenFile" Label="Open" Click="OpenFileButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>

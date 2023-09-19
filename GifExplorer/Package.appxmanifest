@@ -11,7 +11,7 @@
   <Identity
     Name="82053cc0-0188-4e21-ba65-c7598c585605"
     Publisher="CN=robmi"
-    Version="1.0.1.0" />
+    Version="1.0.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="82053cc0-0188-4e21-ba65-c7598c585605" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

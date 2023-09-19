@@ -31,13 +31,14 @@ namespace GifExplorer
     class GifFrame
     {
         public InteropBrush ImageBrush { get; }
+        public InteropBrush WholeFrameBrush { get; }
         public string DisplayName { get; }
         public BitmapPropertySet Properties { get; }
         public RectInt32 Rect { get; }
         public CanvasBitmap Bitmap { get; }
         public GifPalette Palette { get; }
 
-        public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, string displayName, BitmapPropertySet properties, GifPalette palette)
+        public GifFrame(CompositionGraphicsDevice compGraphics, CanvasBitmap bitmap, CanvasBitmap wholeBitmap, string displayName, BitmapPropertySet properties, GifPalette palette)
         {
             var size = bitmap.SizeInPixels;
             var surface = compGraphics.CreateDrawingSurface2(new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height }, DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
@@ -46,10 +47,19 @@ namespace GifExplorer
                 session.Clear(Colors.Transparent);
                 session.DrawImage(bitmap);
             }
+            var wholeSurface = compGraphics.CreateDrawingSurface2(new SizeInt32() { Width = (int)size.Width, Height = (int)size.Height }, DirectXPixelFormat.B8G8R8A8UIntNormalized, DirectXAlphaMode.Premultiplied);
+            using (var session = CanvasComposition.CreateDrawingSession(wholeSurface))
+            {
+                session.Clear(Colors.Transparent);
+                session.DrawImage(wholeBitmap);
+            }
             var compositor = compGraphics.Compositor;
             var compBrush = compositor.CreateSurfaceBrush(surface);
             compBrush.BitmapInterpolationMode = CompositionBitmapInterpolationMode.NearestNeighbor;
+            var wholeCompBrush = compositor.CreateSurfaceBrush(wholeSurface);
+            wholeCompBrush.BitmapInterpolationMode = CompositionBitmapInterpolationMode.NearestNeighbor;
             ImageBrush = new InteropBrush(compBrush);
+            WholeFrameBrush = new InteropBrush(wholeCompBrush);
             DisplayName = displayName;
             Properties = properties;
             Rect = new RectInt32()
@@ -73,6 +83,7 @@ namespace GifExplorer
 
         private GifFrame _rightClickedFrame;
         private string _rightClickedInfo;
+        private bool _viewWholeFrame = false;
 
         public MainPage()
         {
@@ -169,10 +180,20 @@ namespace GifExplorer
 
                 // Extract frames
                 var numFrames = decoder.FrameCount;
+                var accumulatedImage = new CanvasRenderTarget(_device, (float)width, (float)height, 96.0f);
+                using (var drawingSession = accumulatedImage.CreateDrawingSession())
+                {
+                    drawingSession.Clear(Colors.Transparent);
+                }
                 for (uint i = 0; i < numFrames; i++)
                 {
                     var frame = decoder.GetFrame(i);
                     var bitmap = DecodeBitmapFrame(frame);
+
+                    using (var drawingSession = accumulatedImage.CreateDrawingSession())
+                    {
+                        drawingSession.DrawImage(bitmap);
+                    }
 
                     var properties = frame.BitmapProperties.GetProperties(new string[] 
                     {
@@ -191,7 +212,7 @@ namespace GifExplorer
                         "/imgdesc/LocalColorTableSize"
                     });
 
-                    var gifFrame = new GifFrame(_compGraphics, bitmap, $"{i}", properties, frame.Palette);
+                    var gifFrame = new GifFrame(_compGraphics, bitmap, accumulatedImage, $"{i}", properties, frame.Palette);
                     frames.Add(gifFrame);
                 }
             }
@@ -228,7 +249,7 @@ namespace GifExplorer
             {
                 MainFrameView.Width = frame.Rect.Width;
                 MainFrameView.Height = frame.Rect.Height;
-                MainFrameView.Fill = frame.ImageBrush;
+                MainFrameView.Fill = _viewWholeFrame ? frame.WholeFrameBrush : frame.ImageBrush;
                 Canvas.SetLeft(MainFrameBorder, frame.Rect.X - MainFrameBorder.BorderThickness.Left);
                 Canvas.SetTop(MainFrameBorder, frame.Rect.Y - MainFrameBorder.BorderThickness.Top);
             }
@@ -359,6 +380,26 @@ namespace GifExplorer
                         await OpenFileAsync(file);
                     }
                 }
+            }
+        }
+
+        private void ViewWholeFrameButton_Checked(object sender, RoutedEventArgs e)
+        {
+            _viewWholeFrame = true;
+            UpdateMainFrameView();
+        }
+
+        private void ViewWholeFrameButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            _viewWholeFrame = false;
+            UpdateMainFrameView();
+        }
+
+        private void UpdateMainFrameView()
+        {
+            if (FramesListView.SelectedItem is GifFrame frame)
+            {
+                MainFrameView.Fill = _viewWholeFrame ? frame.WholeFrameBrush : frame.ImageBrush;
             }
         }
     }
